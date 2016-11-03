@@ -17,6 +17,7 @@
 # Normally the package rule runs aapt, which includes the resource,
 # but we're not running that in our package rule so just copy in the
 # resource files here.
+ifneq ($(DISABLE_STUBS_BUILDING),true)
 intermediates := $(TARGET_OUT_COMMON_INTERMEDIATES)/JAVA_LIBRARIES/$(sdk_stub_name)_intermediates
 full_target := $(intermediates)/classes.jar
 jack_lib := $(intermediates)/classes.jack
@@ -70,6 +71,7 @@ $(full_target): $(stub_timestamp) $(framework_res_package)
 	$(hide) jar -cf $@ -C $(PRIVATE_CLASS_INTERMEDIATES_DIR) .
 	$(hide) jar -u0f $@ -C $(PRIVATE_CLASS_INTERMEDIATES_DIR) resources.arsc
 
+
 $(jack_lib) : $(stub_timestamp) $(framework_res_package) $(JACK) | setup-jack-server
 	@echo Compiling SDK Stubs with Jack: $@
 	rm -rf $(PRIVATE_INTERMEDIATES_DIR)/jack-rsc.tmp
@@ -100,3 +102,4 @@ $(dex_toc): $(full_target).toc $(jack_lib)
 	$(hide) cp $< $@.tmp
 	$(call commit-change-for-toc, $@)
 .KATI_RESTAT: $(dex_toc)
+endif
